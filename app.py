@@ -1,15 +1,15 @@
 from werkzeug import url_decode
-from flask import Flask
+from flask import Flask, abort
 import json
-from sqlalchemy import Boolean                                                                                                                                                                         
-from sqlalchemy import Column                                                                                                                                                                          
-from sqlalchemy import create_engine                                                                                                                                                                   
-from sqlalchemy import Integer                                                                                                                                                                         
-from sqlalchemy import Enum                                                                                                                                                                            
-from sqlalchemy import String                                                                                                                                                                          
-from sqlalchemy.ext.declarative import declarative_base                                                                                                                                                
-from sqlalchemy.orm import sessionmaker                                                                                                                                                                
-from sqlalchemy.schema import UniqueConstraint                                                                                                                                                         
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import Integer
+from sqlalchemy import Enum
+from sqlalchemy import String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.schema import UniqueConstraint
 from contextlib import contextmanager   
 import functools
 from sqlalchemy.orm.exc import NoResultFound
@@ -23,7 +23,7 @@ engine = create_engine('sqlite:////tmp/trackroom.db', echo=True)
 Session = sessionmaker(bind=engine)
 
 
-def get_session():                                                                                                                                                                                     
+def get_session():
   return Session() 
 
 class Room(Base):
@@ -45,30 +45,33 @@ class Room(Base):
   def to_dict(self):
     return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id}
 
-def rowtodict(row):                                                                                                                                                                                    
-  d = {}                                                                                                                                                                                             
-  for column in row.__table__.columns:                                                                                                                                                               
+def rowtodict(row):
+  d = {}
+  for column in row.__table__.columns:
     d[column.name] = getattr(row, column.name)
     return d  
 
 Base.metadata.create_all(engine)
 
-def with_session(func):                                                                                                                                                                                
+def with_session(func):
   @functools.wraps(func)
-  def with_session_func(*args, **kwargs):                                                                                                                                                              
-    session = get_session()                                                                                                                                                                      
-    result = func(session, *args, **kwargs)                                                                                                                                                            
-    session.commit()                                                                                                                                                                                   
-    return result                                                                                                                                                                                      
+  def with_session_func(*args, **kwargs):
+    session = get_session()
+    result = func(session, *args, **kwargs)
+    session.commit()
+    return result
   return with_session_func  
 
+@app.errorhandler(404)
+def page_not_found(e):
+	return json.dumps({"status":404}), 404
 
 @app.route('/create')
 @with_session
 def add_room(session):
   room = Room('Work Room', False, 10)
   session.add(room)
-  return json.dumps({'status': 200})  
+  return json.dumps({'status': 200}), 200 
 
 @app.route('/room/<int:room_id>')
 @with_session
@@ -76,10 +79,9 @@ def show_room(session, room_id):
   try:
     room = rowtodict(session.query(Room).filter(Room.id==room_id).one())
   except NoResultFound as error:
-    return json.dumps({'status': 404})
+		abort(404)
 
-  room['status'] = 200
-  return json.dumps(room)  
+  return json.dumps(room), 200 
 
 @app.route('/room/checkin/<int:room_id>', methods=['POST',])
 @with_session
@@ -87,11 +89,10 @@ def check_into_room(session, room_id):
   try:
     room = session.query(Room).filter(Room.id==room_id).all()[0]
   except NoResultFound as error:
-    return json.dumps({'status':404})
-
+		abort(404)
   room.occupied = True
   session.add(room)
-  return json.dumps({'status' : 200})  
+  return json.dumps({'status' : 'Succeeded'}), 200
 
 @app.route('/room/checkout/<int:room_id>')
 @with_session
@@ -100,11 +101,11 @@ def check_out_of_room(session, room_id):
   try:
     room = session.query(Room).filter(Room.id==room_id).all()[0]
   except NoResultFound as error:
-    return json.dumps({'status':404})
+    abort(404)
 
   room.occupied = False
   session.add(room)
-  return json.dumps({'status' : 200})  
+  return json.dumps({'status' : 'Succeeded'}), 200  
 
 @app.route('/')
 @with_session
@@ -114,4 +115,4 @@ def list_rooms(session):
     return json.dumps(rooms_dicts)
 
 if __name__ == '__main__':
-  app.run()
+  app.run(host='0.0.0.0')
