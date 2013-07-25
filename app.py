@@ -11,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker                                                                                                                                                                
 from sqlalchemy.schema import UniqueConstraint                                                                                                                                                         
 from contextlib import contextmanager   
+import functools
 from sqlalchemy.orm.exc import NoResultFound
 
 app = Flask(__name__)
@@ -53,6 +54,7 @@ def rowtodict(row):
 Base.metadata.create_all(engine)
 
 def with_session(func):                                                                                                                                                                                
+  @functools.wraps(func)
   def with_session_func(*args, **kwargs):                                                                                                                                                              
     session = get_session()                                                                                                                                                                      
     result = func(session, *args, **kwargs)                                                                                                                                                            
@@ -61,15 +63,14 @@ def with_session(func):
   return with_session_func  
 
 
-@app.route('/create/room')
+@app.route('/create')
 @with_session
 def add_room(session):
   room = Room('Work Room', False, 10)
   session.add(room)
-  #movie = Movie(id=id, name=u'My great movie') # Your query here ;)
   return json.dumps({'status': 200})  
 
-@app.route('/room/<room_id>')
+@app.route('/room/<int:room_id>')
 @with_session
 def show_room(session, room_id):
   try:
@@ -78,10 +79,9 @@ def show_room(session, room_id):
     return json.dumps({'status': 404})
 
   room['status'] = 200
-  #movie = Movie(id=id, name=u'My great movie') # Your query here ;)
   return json.dumps(room)  
 
-@app.route('/room/checkin/<room_id>', methods=['POST',])
+@app.route('/room/checkin/<int:room_id>', methods=['POST',])
 @with_session
 def check_into_room(session, room_id):
   try:
@@ -93,9 +93,9 @@ def check_into_room(session, room_id):
   session.add(room)
   return json.dumps({'status' : 200})  
 
-@app.route('/room/checkout/<room_id>')
+@app.route('/room/checkout/<int:room_id>')
 @with_session
-def check_into_room(session, room_id):
+def check_out_of_room(session, room_id):
   room = None
   try:
     room = session.query(Room).filter(Room.id==room_id).all()[0]
