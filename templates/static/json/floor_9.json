@@ -157,6 +157,32 @@
 				[15, 100],
 				[0, 100]
 			]
+		},
+		{
+			"id": 9012,
+			"floor": 9,
+			"name": "1",
+			"should_show_label": true,
+			"bookable": true,
+			"coordinates": [
+				[96, 0],
+				[98, 0],
+				[98, 4],
+				[96, 4]
+			]
+		},
+		{
+			"id": 9013,
+			"floor": 9,
+			"name": "2",
+			"should_show_label": true,
+			"bookable": true,
+			"coordinates": [
+				[98, 0],
+				[100, 0],
+				[100, 4],
+				[98, 4]
+			]
 		}
 	]
 }
