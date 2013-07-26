@@ -176,15 +176,30 @@ View.RoomView = function(room) {
 // Global
 function initialize() {
 	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
-	$.getJSON('static/json/floor_10.json', parseFloorPlan).fail(function() {
+	$.getJSON('static/json/floor_9.json', function(json) {
+		parseFloorPlan('9th Floor', json);
+	}).fail(function() {
 		console.log('error');
+	});
+	bindFloorDropdownEvents();
+}
+
+function bindFloorDropdownEvents() {
+	$('#floor-dropdown a').click(function(event) {
+		var floorName = $(event.target).text() + ' Floor';
+		$.getJSON('static/json/' + $(event.target).data('floor-plan-href'), function(json) {
+		parseFloorPlan(floorName, json);
+		}).fail(function() {
+			console.log('error');
+		});
 	});
 }
 
-function parseFloorPlan(json) {
-	floorPlan = new FloorPlan(json);
+function parseFloorPlan(floorName, json) {
+	var floorPlan = new FloorPlan(json);
 	window.view.setFloorPlan(floorPlan);
 	setViewOccupiedRooms();
+	$('#floor-title').text(floorName);
 }
 
 function setViewOccupiedRooms() {
