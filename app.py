@@ -13,6 +13,7 @@ from sqlalchemy.schema import UniqueConstraint
 from contextlib import contextmanager   
 import functools
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -66,6 +67,17 @@ def with_session(func):
 def page_not_found(e):
 	return json.dumps({"status":404}), 404
 
+@with_session
+def load_data(session, json_string):
+	plans = json.loads(json_string)
+	rooms = plans.get('rooms')
+	for room_json in rooms:
+		try:
+			room = Room(room_json.get('name', None), False, room_json.get('floor', None))
+			session.add(room)
+		except IntegrityError as error:
+			pass
+
 @app.route('/create')
 @with_session
 def add_room(session):
@@ -77,7 +89,7 @@ def add_room(session):
 @with_session
 def show_room(session, room_id):
   try:
-    room = rowtodict(session.query(Room).filter(Room.id==room_id).one())
+    room = session.query(Room).filter(Room.id==room_id).one().to_dict()
   except NoResultFound as error:
 		abort(404)
 
@@ -94,7 +106,7 @@ def check_into_room(session, room_id):
   session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200
 
-@app.route('/room/checkout/<int:room_id>')
+@app.route('/room/checkout/<int:room_id>', methods=['POST',])
 @with_session
 def check_out_of_room(session, room_id):
   room = None
@@ -108,6 +120,7 @@ def check_out_of_room(session, room_id):
   return json.dumps({'status' : 'Succeeded'}), 200  
 
 @app.route('/')
+@app.route('/rooms')
 @with_session
 def list_rooms(session):
     rooms = session.query(Room).all() 
