@@ -4,6 +4,8 @@
 			"id": 9000,
 			"floor": 9,
 			"name": "9th Floor",
+			"should_show_label": false,
+			"bookable": false,
 			"coordinates": [
 				[0, 0],
 				[100, 0],
@@ -14,7 +16,9 @@
 		{
 			"id": 9001,
 			"floor": 9,
-			"name": "9th Floor Elevator",
+			"name": "Elevator",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[0, 0],
 				[10, 0],
@@ -25,7 +29,9 @@
 		{
 			"id": 9002,
 			"floor": 9,
-			"name": "9th Floor Lobby",
+			"name": "Lobby",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[10, 0],
 				[60, 0],
@@ -36,7 +42,9 @@
 		{
 			"id": 9003,
 			"floor": 9,
-			"name": "9th Floor Kitchen",
+			"name": "Kitchen",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[60, 3],
 				[75, 3],
@@ -47,7 +55,9 @@
 		{
 			"id": 9004,
 			"floor": 9,
-			"name": "9th Floor Washrooms",
+			"name": "Washrooms",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[60, 0],
 				[100, 0],
@@ -61,6 +71,8 @@
 			"id": 9005,
 			"floor": 9,
 			"name": "Levchins",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[0, 10],
 				[12, 10],
@@ -72,6 +84,8 @@
 			"id": 9006,
 			"floor": 9,
 			"name": "Comic Shop",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[85, 90],
 				[100, 90],
@@ -83,6 +97,8 @@
 			"id": 9007,
 			"floor": 9,
 			"name": "Pawn Shop",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[70, 90],
 				[85, 90],
@@ -94,6 +110,8 @@
 			"id": 9008,
 			"floor": 9,
 			"name": "Hookah Bar",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[50, 90],
 				[70, 90],
@@ -105,6 +123,8 @@
 			"id": 9009,
 			"floor": 9,
 			"name": "Rifle Range",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[30, 90],
 				[50, 90],
@@ -116,6 +136,8 @@
 			"id": 9010,
 			"floor": 9,
 			"name": "Dance Studio",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[15, 90],
 				[30, 90],
@@ -127,6 +149,8 @@
 			"id": 9011,
 			"floor": 9,
 			"name": "Aquarium",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[0, 90],
 				[15, 90],

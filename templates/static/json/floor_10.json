@@ -4,6 +4,8 @@
 			"id": 10000,
 			"floor": 10,
 			"name": "10th Floor",
+			"should_show_label": false,
+			"bookable": false,
 			"coordinates": [
 				[0, 0],
 				[100, 0],
@@ -14,7 +16,9 @@
 		{
 			"id": 10001,
 			"floor": 10,
-			"name": "10th Floor Elevator",
+			"name": "Elevator",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[0, 0],
 				[10, 0],
@@ -25,7 +29,9 @@
 		{
 			"id": 10002,
 			"floor": 10,
-			"name": "10th Elevator Area",
+			"name": "Elevator Area",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[10, 0],
 				[30, 0],
@@ -36,7 +42,9 @@
 		{
 			"id": 10003,
 			"floor": 10,
-			"name": "10th Floor Kitchen",
+			"name": "Kitchen",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[30, 10],
 				[70, 10],
@@ -47,7 +55,9 @@
 		{
 			"id": 10004,
 			"floor": 10,
-			"name": "10th Floor Shower",
+			"name": "Shower",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[30, 0],
 				[50, 0],
@@ -58,7 +68,9 @@
 		{
 			"id": 10005,
 			"floor": 10,
-			"name": "10th Floor Washrooms",
+			"name": "Washrooms",
+			"should_show_label": false,
+			"bookable": true,
 			"coordinates": [
 				[50, 0],
 				[100, 0],
@@ -70,6 +82,8 @@
 			"id": 10006,
 			"floor": 10,
 			"name": "Hostel",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[95, 20],
 				[100, 20],
@@ -81,6 +95,8 @@
 			"id": 10007,
 			"floor": 10,
 			"name": "The Creperie",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[95, 25],
 				[100, 25],
@@ -92,6 +108,8 @@
 			"id": 10008,
 			"floor": 10,
 			"name": "Gastro Pub",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[95, 30],
 				[100, 30],
@@ -103,6 +121,8 @@
 			"id": 10009,
 			"floor": 10,
 			"name": "Dog Park",
+			"should_show_label": true,
+			"bookable": true,
 			"coordinates": [
 				[0, 60],
 				[10, 60],
@@ -114,6 +134,8 @@
 			"id": 10010,
 			"floor": 10,
 			"name": "Zoo",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[85, 80],
 				[100, 80],
@@ -125,6 +147,8 @@
 			"id": 10011,
 			"floor": 10,
 			"name": "Pool Table",
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[0, 50],
 				[10, 50],
