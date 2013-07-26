@@ -35,19 +35,20 @@ class Room(Base):
 
   id = Column(Integer, primary_key=True)
   aux_id = Column(Integer, nullable=False)
-  name = Column(String, unique=True, nullable=False)
+  name = Column(String, nullable=False)
   occupied = Column(Boolean, default=False)
   floor = Column(Integer, nullable=False)
+  bookable = Column(Boolean, nullable=False)
 
-
-  def __init__(self, name, occupied, floor, aux_id):
+  def __init__(self, name, occupied, floor, aux_id, bookable):
       self.name = name
       self.occupied = occupied
       self.floor = floor
       self.aux_id = aux_id
+      self.bookable = bookable
 
   def to_dict(self):
-		return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id, 'aux_id': self.aux_id}
+		return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id, 'aux_id': self.aux_id, 'bookable': self.bookable}
 
 def rowtodict(row):
   d = {}
@@ -66,9 +67,22 @@ def with_session(func):
     return result
   return with_session_func  
 
+def list_of_rooms_to_dicts(rows):
+	list_of_dicts = []
+	for row in rows:
+		list_of_dicts.append(row.to_dict())
+	return list_of_dicts
+
 @app.errorhandler(404)
 def page_not_found(e):
 	return json.dumps({"status":404}), 404
+
+@app.route('/rooms/free')
+@with_session
+def get_free_floors(session):
+	rooms = session.query(Room).filter(Room.occupied==False).all()
+	rooms_dict = list_of_rooms_to_dicts(rooms)
+	return json.dumps({'rooms' : rooms_dict}), 200
 
 @with_session
 def load_data(session):
@@ -78,7 +92,7 @@ def load_data(session):
 		rooms = plans.get('rooms')
 		for room_json in rooms:
 			try:
-				room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None))
+				room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None), room_json.get('bookable', None))
 				session.add(room)
 			except IntegrityError as error:
 				pass
