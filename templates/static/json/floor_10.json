@@ -161,7 +161,7 @@
 			"floor": 10,
 			"name": "1",
 			"should_show_label": true,
-			"bookable": false,
+			"bookable": true,
 			"coordinates": [
 				[96, 0],
 				[98, 0],
@@ -174,7 +174,7 @@
 			"floor": 10,
 			"name": "2",
 			"should_show_label": true,
-			"bookable": false,
+			"bookable": true,
 			"coordinates": [
 				[98, 0],
 				[100, 0],
