@@ -1,5 +1,5 @@
 from werkzeug import url_decode
-from flask import Flask, abort
+from flask import Flask, abort, render_template
 import json
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -33,18 +33,20 @@ class Room(Base):
   __tablename__ = 'rooms'  
 
   id = Column(Integer, primary_key=True)
+  aux_id = Column(Integer, nullable=False)
   name = Column(String, unique=True, nullable=False)
   occupied = Column(Boolean, default=False)
   floor = Column(Integer, nullable=False)
 
 
-  def __init__(self, name, occupied, floor):
+  def __init__(self, name, occupied, floor, aux_id):
       self.name = name
       self.occupied = occupied
       self.floor = floor
+      self.aux_id = aux_id
 
   def to_dict(self):
-    return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id}
+		return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id, 'aux_id': self.aux_id}
 
 def rowtodict(row):
   d = {}
@@ -73,23 +75,29 @@ def load_data(session, json_string):
 	rooms = plans.get('rooms')
 	for room_json in rooms:
 		try:
-			room = Room(room_json.get('name', None), False, room_json.get('floor', None))
+			room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None))
 			session.add(room)
 		except IntegrityError as error:
 			pass
 
-@app.route('/create')
+@app.route('/floor/<int:floor_id>')
 @with_session
-def add_room(session):
-  room = Room('Work Room', False, 10)
-  session.add(room)
-  return json.dumps({'status': 200}), 200 
+def show_floor(session, floor_id):
+  try:
+    rooms_on_floor = session.query(Room).filter(Room.floor==floor_id).all()
+    room_dicts = []
+    for room in rooms_on_floor:
+			room_dicts.append(room.to_dict())
+  except NoResultFound as error:
+		abort(404)
+
+  return json.dumps({'rooms' : room_dicts}), 200 
 
 @app.route('/room/<int:room_id>')
 @with_session
 def show_room(session, room_id):
   try:
-    room = session.query(Room).filter(Room.id==room_id).one().to_dict()
+    room = session.query(Room).filter(Room.aux_id==room_id).one().to_dict()
   except NoResultFound as error:
 		abort(404)
 
@@ -119,13 +127,16 @@ def check_out_of_room(session, room_id):
   session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200  
 
-@app.route('/')
 @app.route('/rooms')
 @with_session
 def list_rooms(session):
     rooms = session.query(Room).all() 
     rooms_dicts = [room.to_dict() for room in rooms]
-    return json.dumps(rooms_dicts)
+    return json.dumps({'rooms' : rooms_dicts})
+
+@app.route('/')
+def homepage():
+	return render_template('index.html')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0')
