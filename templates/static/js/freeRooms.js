@@ -8,16 +8,12 @@ function parseFreeRooms(callback) {
 
 function parseFree(json, callback) {
 	var hashOfFree = {};
-	for (var i = 0; i < json.rooms.length; i++)
-	{
+	for (var i = 0; i < json.rooms.length; i++) {
 		var singleJson = json.rooms[i];
-		if(singleJson["bookable"])
-		{
-			var id = singleJson["aux_id"];
-			var name = singleJson["name"];
-			var floor = singleJson["floor"];
-			hashOfFree[id] = [name, floor];
-		}
+		var id = singleJson["aux_id"];
+		var name = singleJson["name"];
+		var floor = singleJson["floor"];
+		hashOfFree[id] = [name, floor];
 	}
 	callback(hashOfFree);
 }

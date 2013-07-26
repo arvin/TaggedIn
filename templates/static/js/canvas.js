@@ -316,6 +316,12 @@ function repeatedParseOccupiedRooms() {
 
 function setFreeRooms() {
 	parseFreeRooms(function(freeRoomsMap) {
+		$.each(this.floorPlans, function(index, floorPlan) {
+			$.each(floorPlan.rooms, function(index, room) {
+				if (!room.isBookable && room.id in freeRoomsMap)
+					delete freeRoomsMap[room.id];
+			});
+		});
 		window.sideBar.setFreeRooms(freeRoomsMap);
 		repeatedParseFreeRooms();
 	});
