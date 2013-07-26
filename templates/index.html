@@ -16,8 +16,8 @@
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span id="floor-title">9th Floor</span><b class="caret"></b></a>
 							<ul id="floor-dropdown" class="dropdown-menu">
-								<li><a href="#" data-floor-plan-href="floor_9.json">9th</a></li>
-								<li><a href="#" data-floor-plan-href="floor_10.json">10th</a></li>
+								<li><a href="#" data-floor="9">9th</a></li>
+								<li><a href="#" data-floor="10">10th</a></li>
 							</ul>
 						</li>
 					</ul>
@@ -25,14 +25,38 @@
 			</div>
 		</div>
 		<div class="container main-body">
-			<div id="floor-plan-wrapper">
-				<canvas id="floor-plan"></canvas>
-			</div>
+				<div id="sidebar-container" class="span3">
+					<div class="well sidebar-nav">
+						<ul class="nav nav-list">
+							<li class="nav-header">Rooms Available</li>
+						</ul>
+						<div class="rooms-container">
+							<div class="floor-9">
+								<ul class="nav nav-list">
+									<li class="nav-header">9th</li>
+								</ul>
+								<ul class="nav nav-list rooms">
+								</ul>
+							</div>
+							<div class="floor-10">
+								<ul class="nav nav-list">
+									<li class="nav-header">10th</li>
+								</ul>
+								<ul class="nav nav-list rooms">
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="floor-plan-wrapper" class="span8">
+					<canvas id="floor-plan"></canvas>
+				</div>
 		</div>
 
 		<script src="static/js/jquery-1.10.2.min.js"></script>
 		<script src="static/js/bootstrap.min.js"></script>
-		<script src="static/js/canvas.js"></script>
 		<script src="static/js/occupied.js"></script>
+		<script src="static/js/freeRooms.js"></script>
+		<script src="static/js/canvas.js"></script>
 	</body>
 </html>

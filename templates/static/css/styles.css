@@ -9,14 +9,19 @@ body, html {
 }
 
 #floor-plan-wrapper {
-	width: 100%;
 	height: 98%;
+	float: right;
 }
 
 #floor-plan {
 	background-color: #ccc;
 	display: block;
 	margin: auto;
+}
+
+#sidebar-container {
+	height: 98%;
+	overflow-y: auto;
 }
 
 div.container.main-body {

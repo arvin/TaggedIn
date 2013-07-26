@@ -2,6 +2,10 @@
 function Constants() {}
 
 Constants.FONT_FAMILY = "Helvetica Neue, Helvetica, Arial, sans-serif";
+Constants.FLOOR_PLANS = [
+	[9, 'floor_9.json'],
+	[10, 'floor_10.json']
+];
 
 // Class FloorPlan
 function FloorPlan(json) {
@@ -109,12 +113,12 @@ View.prototype.drawRoom = function(context, room) {
 		context.strokeStyle = '#999999';
 	}
 	else if (room.isOccupied) {
-		context.fillStyle = '#ED7E7E';
-		context.strokeStyle = '#D13B3B';
+		context.fillStyle = room.isSelected ? '#F5D0D0' : '#ED7E7E';
+		context.strokeStyle = room.isSelected ? '#D98F8F' : '#D13B3B';
 	}
 	else {
-		context.fillStyle = '#8FF57A';
-		context.strokeStyle = '#49B035';
+		context.fillStyle = room.isSelected ? '#C6F2BD' : '#8FF57A';
+		context.strokeStyle = room.isSelected ? '#8ED681' : '#49B035';
 	}
 	context.fill();
 	context.stroke();
@@ -165,6 +169,13 @@ View.prototype.mouseOut = function(evt) {
 	this.draw();
 }
 
+View.prototype.highlight = function(roomId) {
+	var highlighted = false;
+	for (var i = 0; i < this.rooms.length; ++i)
+		this.rooms[i].isSelected = this.rooms[i].id === roomId;
+	this.draw();
+}
+
 View.prototype.setFloorPlan = function(floorPlan) {
 	this.rooms = new Array();
 	for (var i = 0; i < floorPlan.rooms.length; ++i)
@@ -190,33 +201,97 @@ View.RoomView = function(room) {
 	this.isOccupied = false;
 }
 
+// Class SideBar
+SideBar = function(sideBarElement) {
+	this.sideBarElement = sideBarElement;
+}
+
+SideBar.prototype.setFreeRooms = function(freeRoomsHash) {
+	var $container = $('.rooms-container', this.sideBarElement);
+	$('.rooms li', $container).addClass('invalidated');
+	$.each(freeRoomsHash, function(id, nameFloorTuple) {
+		var $element = $('#room-' + id, $container);
+		if ($element.length > 0)
+			$element.removeClass('invalidated');
+		else {
+			var aTag = document.createElement('a');
+			aTag.setAttribute('href', '#');
+			aTag.innerHTML = nameFloorTuple[0];
+			aTag.setAttribute('data-id', id);
+			aTag.setAttribute('data-floor', nameFloorTuple[1]);
+			var liTag = document.createElement('li');
+			liTag.setAttribute('id', 'room-' + id);
+			liTag.setAttribute('data-id', id);
+			liTag.setAttribute('data-floor', nameFloorTuple[1]);
+			liTag.appendChild(aTag);
+			$('.floor-' + nameFloorTuple[1] + ' .rooms', $container).append(liTag); 
+			$(liTag).click(function(evt) {
+				selectRoom(parseInt($(evt.target).data('floor')), parseInt($(evt.target).data('id')));
+			});
+		}
+	});
+	$('.rooms li.invalidated', $container).remove();
+}
+
 // Global
 function initialize() {
+	window.floorPlans = {};
+	var floorPlanLoadCount = 0;
 	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
-	$.getJSON('static/json/floor_9.json', function(json) {
-		parseFloorPlan('9th Floor', json);
+	window.sideBar = new SideBar(document.getElementById('#sidebar-container'));
+	loadFloor(0);
+	bindFloorDropdownEvents();
+}
+
+function loadFloor(index) {
+	$.getJSON('static/json/' + Constants.FLOOR_PLANS[index][1], function(json) {
+		window.floorPlans[Constants.FLOOR_PLANS[index][0]] = new FloorPlan(json);
+		index++;
+		if (index === Constants.FLOOR_PLANS.length)
+			contentLoaded();
+		else
+			loadFloor(index);
 	}).fail(function() {
 		console.log('error');
 	});
-	bindFloorDropdownEvents();
+}
+
+function contentLoaded() {
+	setFloor(9);
 }
 
 function bindFloorDropdownEvents() {
 	$('#floor-dropdown a').click(function(event) {
-		var floorName = $(event.target).text() + ' Floor';
-		$.getJSON('static/json/' + $(event.target).data('floor-plan-href'), function(json) {
-		parseFloorPlan(floorName, json);
-		}).fail(function() {
-			console.log('error');
-		});
+		setFloor(parseInt($(event.target).data('floor')));
 	});
 }
 
-function parseFloorPlan(floorName, json) {
-	var floorPlan = new FloorPlan(json);
-	window.view.setFloorPlan(floorPlan);
+function setFloor(floorNumber) {
+	window.floorNumber = floorNumber;
+	window.view.setFloorPlan(window.floorPlans[floorNumber]);
 	setViewOccupiedRooms();
-	$('#floor-title').text(floorName);
+	setFreeRooms();
+	$('#floor-title').text(toFloorName(floorNumber));
+}
+
+function selectRoom(floorNumber, roomId) {
+	if (window.floorNumber !== floorNumber)
+		setFloor(floorNumber);
+	window.view.highlight(roomId);
+}
+
+function toFloorName(floorNumber) {
+	if (floorNumber % 100 >= 10 && floorNumber % 100 < 20)
+		return floorNumber + 'th';
+	switch (floorNumber % 10) {
+		case 1:
+			return floorNumber + 'st';
+		case 2:
+			return floorNumber + 'nd';
+		case 3:
+			return floorNumber + 'rd';
+	}
+	return floorNumber + 'th';
 }
 
 function setViewOccupiedRooms() {
@@ -227,8 +302,20 @@ function setViewOccupiedRooms() {
 }
 
 function repeatedParseOccupiedRooms() {
-	clearTimeout(window.refreshTimeout);
-	window.refreshTimeout = setTimeout(setViewOccupiedRooms, 10000);
+	clearTimeout(window.refreshOccupiedRoomsTimeout);
+	window.refreshOccupiedRoomsTimeout = setTimeout(setViewOccupiedRooms, 10000);
+}
+
+function setFreeRooms() {
+	parseFreeRooms(function(freeRoomsMap) {
+		window.sideBar.setFreeRooms(freeRoomsMap);
+		repeatedParseFreeRooms();
+	});
+}
+
+function repeatedParseFreeRooms() {
+	clearTimeout(window.refreshFreeRoomsTimeout);
+	window.refreshFreeRoomsTimeout = setTimeout(setFreeRooms, 10000);
 }
 
 $(document).ready(initialize);
