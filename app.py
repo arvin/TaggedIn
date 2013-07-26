@@ -125,10 +125,11 @@ def show_room(session, room_id):
 def check_into_room(session, room_id):
   try:
     room = session.query(Room).filter(Room.aux_id==room_id).all()[0]
-  except NoResultFound as error:
+  except (NoResultFound, IndexError) as error:
 		abort(404)
-  room.occupied = True
-  session.add(room)
+  if room.bookable: 
+		room.occupied = True
+		session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200
 
 @app.route('/room/checkout/<int:room_id>', methods=['POST',])
@@ -137,11 +138,12 @@ def check_out_of_room(session, room_id):
   room = None
   try:
     room = session.query(Room).filter(Room.aux_id==room_id).all()[0]
-  except NoResultFound as error:
+  except (NoResultFound, IndexError) as error:
     abort(404)
 
-  room.occupied = False
-  session.add(room)
+  if room.bookable: 
+		room.occupied = False
+		session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200  
 
 @app.route('/rooms')
