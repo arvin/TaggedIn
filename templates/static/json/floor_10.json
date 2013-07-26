@@ -1,0 +1,136 @@
+{
+	"rooms": [
+		{
+			"id": 10000,
+			"floor": 10,
+			"name": "10th Floor",
+			"coordinates": [
+				[0, 0],
+				[100, 0],
+				[100, 100],
+				[0, 100]
+			]
+		},
+		{
+			"id": 10001,
+			"floor": 10,
+			"name": "10th Floor Elevator",
+			"coordinates": [
+				[0, 0],
+				[10, 0],
+				[10, 10],
+				[0, 10]
+			]
+		},
+		{
+			"id": 10002,
+			"floor": 10,
+			"name": "10th Elevator Area",
+			"coordinates": [
+				[10, 0],
+				[30, 0],
+				[30, 10],
+				[10, 10]
+			]
+		},
+		{
+			"id": 10003,
+			"floor": 10,
+			"name": "10th Floor Kitchen",
+			"coordinates": [
+				[30, 10],
+				[70, 10],
+				[70, 20],
+				[30, 20]
+			]
+		},
+		{
+			"id": 10004,
+			"floor": 10,
+			"name": "10th Floor Shower",
+			"coordinates": [
+				[30, 0],
+				[50, 0],
+				[50, 10],
+				[30, 10]
+			]
+		},
+		{
+			"id": 10005,
+			"floor": 10,
+			"name": "10th Floor Washrooms",
+			"coordinates": [
+				[50, 0],
+				[100, 0],
+				[100, 10],
+				[50, 10]
+			]
+		},
+		{
+			"id": 10006,
+			"floor": 10,
+			"name": "Hostel",
+			"coordinates": [
+				[95, 20],
+				[100, 20],
+				[100, 25],
+				[95, 25]
+			]
+		},
+		{
+			"id": 10007,
+			"floor": 10,
+			"name": "The Creperie",
+			"coordinates": [
+				[95, 25],
+				[100, 25],
+				[100, 30],
+				[95, 30]
+			]
+		},
+		{
+			"id": 10008,
+			"floor": 10,
+			"name": "Gastro Pub",
+			"coordinates": [
+				[95, 30],
+				[100, 30],
+				[100, 35],
+				[95, 35]
+			]
+		},
+		{
+			"id": 10009,
+			"floor": 10,
+			"name": "Dog Park",
+			"coordinates": [
+				[0, 60],
+				[10, 60],
+				[10, 80],
+				[0, 80]
+			]
+		},
+		{
+			"id": 10010,
+			"floor": 10,
+			"name": "Zoo",
+			"coordinates": [
+				[85, 80],
+				[100, 80],
+				[100, 100],
+				[85, 100]
+			]
+		},
+		{
+			"id": 10011,
+			"floor": 10,
+			"name": "Pool Table",
+			"coordinates": [
+				[0, 50],
+				[10, 50],
+				[10, 60],
+				[0, 60]
+			]
+		}
+	]
+}
