@@ -1,8 +1,8 @@
 function parseOccupiedRooms(callback) {
 	$.getJSON('rooms', function(json) {
 		parseOccupied(json, callback);
-	}).fail(function(asdf) {
-		console.log(asdf);
+	}).fail(function() {
+		console.log("ERROR");
 	});
 }
 
