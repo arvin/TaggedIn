@@ -89,7 +89,7 @@ def add_room(session):
 @with_session
 def show_room(session, room_id):
   try:
-    room = rowtodict(session.query(Room).filter(Room.id==room_id).one())
+    room = session.query(Room).filter(Room.id==room_id).one().to_dict()
   except NoResultFound as error:
 		abort(404)
 
