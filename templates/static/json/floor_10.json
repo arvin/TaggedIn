@@ -69,8 +69,8 @@
 			"id": 10005,
 			"floor": 10,
 			"name": "Washrooms",
-			"should_show_label": false,
-			"bookable": true,
+			"should_show_label": true,
+			"bookable": false,
 			"coordinates": [
 				[50, 0],
 				[100, 0],
