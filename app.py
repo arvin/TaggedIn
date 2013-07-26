@@ -1,5 +1,5 @@
 from werkzeug import url_decode
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, url_for, send_from_directory
 import json
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -133,6 +133,11 @@ def list_rooms(session):
     rooms = session.query(Room).all() 
     rooms_dicts = [room.to_dict() for room in rooms]
     return json.dumps({'rooms' : rooms_dicts})
+
+ 
+@app.route('/static/<folder>/<path:filename>')
+def base_static(folder, filename):
+	return send_from_directory(app.root_path + '/templates/static/' + folder + '/', filename)
 
 @app.route('/')
 def homepage():
