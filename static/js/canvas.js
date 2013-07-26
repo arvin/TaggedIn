@@ -51,25 +51,33 @@ Point.prototype.scale = function(canvas) {
 	return new Point(this.x * canvas.width / 100, this.y * canvas.height / 100);
 }
 
-
-function draw() {
-	var canvas = document.getElementById('floor-plan');
-	var wrapper = document.getElementById('floor-plan-wrapper');
-	canvas.width = Math.min(wrapper.clientWidth, wrapper.clientHeight);
-	canvas.height = Math.min(wrapper.clientWidth, wrapper.clientHeight);
-	var context = canvas.getContext('2d');
-
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	drawRooms(canvas, context);
+//Class View
+function View(canvas, wrapper) {
+	this.canvas = canvas;
+	this.wrapper = wrapper;
+	this.floorPlan = null;
+	_this = this
+	$(window).resize(function() {
+		_this.draw();
+	});
 }
 
-function drawRoom(canvas, context, room) {
+View.prototype.draw = function() {
+	this.canvas.width = Math.min(this.wrapper.clientWidth, this.wrapper.clientHeight);
+	this.canvas.height = Math.min(this.wrapper.clientWidth, this.wrapper.clientHeight);
+	var context = this.canvas.getContext('2d');
+
+	context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	this.drawRooms(context);
+}
+
+View.prototype.drawRoom = function(context, room) {
 	context.beginPath();
 
-	var tempPoint = room.coordinates[0].scale(canvas);
+	var tempPoint = room.coordinates[0].scale(this.canvas);
 	context.moveTo(tempPoint.x, tempPoint.y);
 	for (var i = 1; i < room.coordinates.length; ++i) {
-		tempPoint = room.coordinates[i].scale(canvas);
+		tempPoint = room.coordinates[i].scale(this.canvas);
 		context.lineTo(tempPoint.x, tempPoint.y);
 	}
 
@@ -82,22 +90,30 @@ function drawRoom(canvas, context, room) {
 	context.stroke();
 }
 
-function drawRoomText(canvas, context, room) {
+View.prototype.drawRoomText = function(context, room) {
 	context.font = "12pt " + Constants.FONT_FAMILY;
 	context.fillStyle = '#333333';
 	context.textAlign = 'center';
-	var tempPoint = room.center.scale(canvas);
+	var tempPoint = room.center.scale(this.canvas);
 	context.fillText(room.name, tempPoint.x, tempPoint.y);
 }
 
-function drawRooms(canvas, context) {
-	for (var i = 0; i < floorPlan.rooms.length; ++i)
-		drawRoom(canvas, context, floorPlan.rooms[i]);
-	for (var i = 0; i < floorPlan.rooms.length; ++i)
-		drawRoomText(canvas, context, floorPlan.rooms[i]);
+View.prototype.drawRooms = function(context) {
+	if (this.floorPlan == null)
+		return;
+	for (var i = 0; i < this.floorPlan.rooms.length; ++i)
+		this.drawRoom(context, this.floorPlan.rooms[i]);
+	for (var i = 0; i < this.floorPlan.rooms.length; ++i)
+		this.drawRoomText(context, this.floorPlan.rooms[i]);
+}
+
+View.prototype.setFloorPlan = function(floorPlan) {
+	this.floorPlan = floorPlan;
+	this.draw();
 }
 
 function initialize() {
+	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
 	$.getJSON('static/json/floor_9.json', parseFloorPlan).fail(function() {
 		console.log('error');
 	});
@@ -105,8 +121,7 @@ function initialize() {
 
 function parseFloorPlan(json) {
 	floorPlan = new FloorPlan(json);
-	$(window).resize(draw);
-	draw();
+	window.view.setFloorPlan(floorPlan);
 }
 
 $(document).ready(initialize);
