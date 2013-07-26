@@ -163,6 +163,7 @@
 			"floor": 9,
 			"name": "1",
 			"should_show_label": true,
+			"list_name": "Men's Stall 1",
 			"bookable": true,
 			"coordinates": [
 				[96, 0],
@@ -176,6 +177,7 @@
 			"floor": 9,
 			"name": "2",
 			"should_show_label": true,
+			"list_name": "Men's Stall 1",
 			"bookable": true,
 			"coordinates": [
 				[98, 0],
