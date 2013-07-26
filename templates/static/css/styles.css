@@ -43,6 +43,12 @@ div.navbar-fixed-top {
 	min-width: 320px;
 }
 
+div.navbar-fixed-top .search-query {
+	height: 15px;
+	margin-top: 7px;
+	float: right;
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
 	div.navbar-fixed-top {
