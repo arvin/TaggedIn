@@ -55,11 +55,39 @@ Point.prototype.scale = function(canvas) {
 function View(canvas, wrapper) {
 	this.canvas = canvas;
 	this.wrapper = wrapper;
-	this.floorPlan = null;
-	_this = this
+	this.bindEvents();
+	this.rooms = new Array();
+}
+
+View.prototype.bindEvents = function() {
+	_this = this;
 	$(window).resize(function() {
 		_this.draw();
 	});
+	this.canvas.addEventListener('mousemove', function(evt) {
+		_this.mouseMove(evt);
+	});
+	this.canvas.addEventListener('mouseout', function(evt) {
+		_this.mouseOut();
+	});
+}
+
+View.prototype.convertEventToPoint = function(evt) {
+	var rect = this.canvas.getBoundingClientRect();
+	return new Point(evt.clientX - rect.left, evt.clientY - rect.top);
+}
+
+View.prototype.definePath = function(context, room) {
+	context.beginPath();
+
+	var tempPoint = room.coordinates[0].scale(this.canvas);
+	context.moveTo(tempPoint.x, tempPoint.y);
+	for (var i = 1; i < room.coordinates.length; ++i) {
+		tempPoint = room.coordinates[i].scale(this.canvas);
+		context.lineTo(tempPoint.x, tempPoint.y);
+	}
+
+	context.closePath();
 }
 
 View.prototype.draw = function() {
@@ -72,26 +100,16 @@ View.prototype.draw = function() {
 }
 
 View.prototype.drawRoom = function(context, room) {
-	context.beginPath();
-
-	var tempPoint = room.coordinates[0].scale(this.canvas);
-	context.moveTo(tempPoint.x, tempPoint.y);
-	for (var i = 1; i < room.coordinates.length; ++i) {
-		tempPoint = room.coordinates[i].scale(this.canvas);
-		context.lineTo(tempPoint.x, tempPoint.y);
-	}
-
-	context.closePath();
-
+	this.definePath(context, room);
 	context.lineWidth = 2;
-	context.fillStyle = '#8ED6FF';
+	context.fillStyle = room.isSelected ? '#CCCCCC' : '#8ED6FF';
 	context.fill();
 	context.strokeStyle = '#2A9BDB';
 	context.stroke();
 }
 
 View.prototype.drawRoomText = function(context, room) {
-	context.font = "12pt " + Constants.FONT_FAMILY;
+	context.font = this.getTextSize() + "pt " + Constants.FONT_FAMILY;
 	context.fillStyle = '#333333';
 	context.textAlign = 'center';
 	var tempPoint = room.center.scale(this.canvas);
@@ -99,22 +117,59 @@ View.prototype.drawRoomText = function(context, room) {
 }
 
 View.prototype.drawRooms = function(context) {
-	if (this.floorPlan == null)
-		return;
-	for (var i = 0; i < this.floorPlan.rooms.length; ++i)
-		this.drawRoom(context, this.floorPlan.rooms[i]);
-	for (var i = 0; i < this.floorPlan.rooms.length; ++i)
-		this.drawRoomText(context, this.floorPlan.rooms[i]);
+	for (var i = 0; i < this.rooms.length; ++i)
+		this.drawRoom(context, this.rooms[i]);
+	for (var i = 0; i < this.rooms.length; ++i)
+		this.drawRoomText(context, this.rooms[i]);
 }
 
-View.prototype.setFloorPlan = function(floorPlan) {
-	this.floorPlan = floorPlan;
+View.prototype.getTextSize = function() {
+	var min = Math.min(this.canvas.width, this.canvas.height);
+	if (min < 480)
+		return 7;
+	if (min < 600)
+		return 8;
+	if (min < 768)
+		return 9;
+	return 10;
+}
+
+View.prototype.mouseMove = function(evt) {
+	var mousePos = this.convertEventToPoint(evt);
+	var context = this.canvas.getContext('2d');
+	for (var i = 0; i < this.rooms.length; ++i) {
+		this.definePath(context, this.rooms[i]);
+		this.rooms[i].isSelected = context.isPointInPath(mousePos.x, mousePos.y);
+	}
 	this.draw();
 }
 
+View.prototype.mouseOut = function(evt) {
+	for (var i = 0; i < this.rooms.length; ++i)
+		this.rooms[i].isSelected = false;
+	this.draw();
+}
+
+View.prototype.setFloorPlan = function(floorPlan) {
+	this.rooms = new Array();
+	for (var i = 0; i < floorPlan.rooms.length; ++i)
+		this.rooms.push(new View.RoomView(floorPlan.rooms[i]));
+	this.draw();
+}
+
+// Class View.RoomView
+View.RoomView = function(room) {
+	this.id = room.id;
+	this.name = room.name;
+	this.coordinates = room.coordinates;
+	this.center = room.center;
+	this.isSelected = false;
+}
+
+// Global
 function initialize() {
 	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
-	$.getJSON('static/json/floor_9.json', parseFloorPlan).fail(function() {
+	$.getJSON('static/json/floor_10.json', parseFloorPlan).fail(function() {
 		console.log('error');
 	});
 }
