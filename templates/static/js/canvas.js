@@ -24,6 +24,7 @@ function Room(json) {
 	this.shouldShowLabel = json.should_show_label;
 	this.isBookable = json.bookable;
 	this.coordinates = new Array();
+	this.listName = 'list_name' in json ? json.list_name : this.name;
 
 	var min = Point.MAX_VALUE;
 	var max = Point.MIN_VALUE;
@@ -204,6 +205,7 @@ View.RoomView = function(room) {
 	this.coordinates = room.coordinates;
 	this.center = room.center;
 	this.shouldShowLabel = room.shouldShowLabel;
+	this.listName = room.listName;
 	this.isBookable = room.isBookable;
 	this.isSelected = false;
 	this.isOccupied = false;
@@ -318,7 +320,11 @@ function setFreeRooms() {
 	parseFreeRooms(function(freeRoomsMap) {
 		$.each(this.floorPlans, function(index, floorPlan) {
 			$.each(floorPlan.rooms, function(index, room) {
-				if (!room.isBookable && room.id in freeRoomsMap)
+				if (!(room.id in freeRoomsMap))
+					return;
+
+				freeRoomsMap[room.id][0] = room.listName;
+				if (!room.isBookable)
 					delete freeRoomsMap[room.id];
 			});
 		});
