@@ -1,5 +1,5 @@
 function parseFreeRooms(callback) {
-	$.getJSON('free', function(json) {
+	$.getJSON('rooms/free', function(json) {
 		parseFree(json, callback);
 	}).fail(function() {
 		console.log("ERROR");
