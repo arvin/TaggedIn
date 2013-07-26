@@ -17,6 +17,8 @@ function Room(json) {
 
 	this.id = json.id;
 	this.name = json.name;
+	this.shouldShowLabel = json.should_show_label;
+	this.isBookable = json.bookable;
 	this.coordinates = new Array();
 
 	var min = Point.MAX_VALUE;
@@ -102,13 +104,26 @@ View.prototype.draw = function() {
 View.prototype.drawRoom = function(context, room) {
 	this.definePath(context, room);
 	context.lineWidth = 2;
-	context.fillStyle = room.isOccupied ? '#CCCCCC' : '#8ED6FF';
+	if (!room.isBookable) {
+		context.fillStyle = '#CCCCCC';
+		context.strokeStyle = '#999999';
+	}
+	else if (room.isOccupied) {
+		context.fillStyle = '#ED7E7E';
+		context.strokeStyle = '#D13B3B';
+	}
+	else {
+		context.fillStyle = '#8FF57A';
+		context.strokeStyle = '#49B035';
+	}
 	context.fill();
-	context.strokeStyle = '#2A9BDB';
 	context.stroke();
 }
 
 View.prototype.drawRoomText = function(context, room) {
+	if (!room.shouldShowLabel)
+		return;
+
 	context.font = this.getTextSize() + "pt " + Constants.FONT_FAMILY;
 	context.fillStyle = '#333333';
 	context.textAlign = 'center';
@@ -169,6 +184,8 @@ View.RoomView = function(room) {
 	this.name = room.name;
 	this.coordinates = room.coordinates;
 	this.center = room.center;
+	this.shouldShowLabel = room.shouldShowLabel;
+	this.isBookable = room.isBookable;
 	this.isSelected = false;
 	this.isOccupied = false;
 }
@@ -210,7 +227,8 @@ function setViewOccupiedRooms() {
 }
 
 function repeatedParseOccupiedRooms() {
-	setTimeout(setViewOccupiedRooms, 10000);
+	clearTimeout(window.refreshTimeout);
+	window.refreshTimeout = setTimeout(setViewOccupiedRooms, 10000);
 }
 
 $(document).ready(initialize);
