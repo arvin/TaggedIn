@@ -155,6 +155,32 @@
 				[10, 60],
 				[0, 60]
 			]
+		},
+		{
+			"id": 10012,
+			"floor": 10,
+			"name": "1",
+			"should_show_label": true,
+			"bookable": false,
+			"coordinates": [
+				[96, 0],
+				[98, 0],
+				[98, 4],
+				[96, 4]
+			]
+		},
+		{
+			"id": 10013,
+			"floor": 10,
+			"name": "2",
+			"should_show_label": true,
+			"bookable": false,
+			"coordinates": [
+				[98, 0],
+				[100, 0],
+				[100, 4],
+				[98, 4]
+			]
 		}
 	]
 }
