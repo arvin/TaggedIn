@@ -1,4 +1,17 @@
 /* General */
+.navbar .brand:hover .in {
+	background-color: #E85D5D;
+}
+
+.navbar .brand .in {
+	display: inline-block;
+	background-color: #CC3333;
+	border-radius: 5px;
+	padding: 3px 6px;
+	margin-left: 5px;
+	margin-top: -3px;
+}
+
 body, html {
 	height: 100%;
 	min-width: 320px;
