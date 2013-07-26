@@ -11,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import UniqueConstraint
 from contextlib import contextmanager   
+import time
 import functools
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
@@ -39,6 +40,8 @@ class Room(Base):
   occupied = Column(Boolean, default=False)
   floor = Column(Integer, nullable=False)
   bookable = Column(Boolean, nullable=False)
+  num_checkins = Column(Integer, default=0)
+  time_reserved = Column(Integer)	
 
   def __init__(self, name, occupied, floor, aux_id, bookable):
       self.name = name
@@ -128,7 +131,10 @@ def check_into_room(session, room_id):
   except (NoResultFound, IndexError) as error:
 		abort(404)
   if room.bookable: 
+		if room.num_checkins == 0:
+			room.time_reserved = time.time()
 		room.occupied = True
+		room.num_checkins+=1
 		session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200
 
@@ -143,8 +149,21 @@ def check_out_of_room(session, room_id):
 
   if room.bookable: 
 		room.occupied = False
+		room.num_checkins-=1
+		if room.num_checkins == 0:
+			room.time_reserved = None
 		session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200  
+
+@with_session
+def clean_batch(session):
+	cutoff_time = time.time() - 45*60
+	rooms = session.query(Room).filter(Room.time_reserved < cutoff_time).all()
+	for room in rooms:
+		room.num_checkins = 0
+		room.occupied = False
+		room.time_reserved = None
+		session.add(room)
 
 @app.route('/rooms')
 @with_session
