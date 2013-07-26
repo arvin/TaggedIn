@@ -128,11 +128,19 @@ View.prototype.drawRoomText = function(context, room) {
 	if (!room.shouldShowLabel)
 		return;
 
+	context.save();
 	context.font = this.getTextSize() + "pt " + Constants.FONT_FAMILY;
 	context.fillStyle = '#333333';
 	context.textAlign = 'center';
 	var tempPoint = room.center.scale(this.canvas);
+	if (room.isSelected && room.isBookable) {
+		context.shadowColor = '#666666';
+		context.shadowOffsetX = 0;
+		context.shadowOffsetY = 0;
+		context.shadowBlur = 4;
+	}
 	context.fillText(room.name, tempPoint.x, tempPoint.y);
+	context.restore();
 }
 
 View.prototype.drawRooms = function(context) {
