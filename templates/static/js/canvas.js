@@ -176,7 +176,7 @@ View.RoomView = function(room) {
 // Global
 function initialize() {
 	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
-	$.getJSON('static/json/floor_9.json', parseFloorPlan).fail(function() {
+	$.getJSON('static/json/floor_10.json', parseFloorPlan).fail(function() {
 		console.log('error');
 	});
 }

@@ -14,7 +14,7 @@ function parseOccupied(json, callback) {
 		if(singleJson["occupied"])
 		{
 			console.log("Test");
-			var id = singleJson["id"];
+			var id = singleJson["aux_id"];
 			hashOfOccupied[id] = true;
 		}
 	}

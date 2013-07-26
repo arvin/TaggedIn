@@ -23,6 +23,7 @@ Base = declarative_base()
 engine = create_engine('sqlite:////tmp/trackroom.db', echo=True)
 Session = sessionmaker(bind=engine)
 
+list_of_floors = ['floor_9.json', 'floor_10.json']
 
 def get_session():
   return Session() 
@@ -70,15 +71,17 @@ def page_not_found(e):
 	return json.dumps({"status":404}), 404
 
 @with_session
-def load_data(session, json_string):
-	plans = json.loads(json_string)
-	rooms = plans.get('rooms')
-	for room_json in rooms:
-		try:
-			room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None))
-			session.add(room)
-		except IntegrityError as error:
-			pass
+def load_data(session):
+	for file_name in list_of_floors:
+		json_string = open('./templates/static/json/' + file_name).read()
+		plans = json.loads(json_string)
+		rooms = plans.get('rooms')
+		for room_json in rooms:
+			try:
+				room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None))
+				session.add(room)
+			except IntegrityError as error:
+				pass
 
 @app.route('/floor/<int:floor_id>')
 @with_session
@@ -107,7 +110,7 @@ def show_room(session, room_id):
 @with_session
 def check_into_room(session, room_id):
   try:
-    room = session.query(Room).filter(Room.id==room_id).all()[0]
+    room = session.query(Room).filter(Room.aux_id==room_id).all()[0]
   except NoResultFound as error:
 		abort(404)
   room.occupied = True
@@ -119,7 +122,7 @@ def check_into_room(session, room_id):
 def check_out_of_room(session, room_id):
   room = None
   try:
-    room = session.query(Room).filter(Room.id==room_id).all()[0]
+    room = session.query(Room).filter(Room.aux_id==room_id).all()[0]
   except NoResultFound as error:
     abort(404)
 
@@ -133,7 +136,6 @@ def list_rooms(session):
     rooms = session.query(Room).all() 
     rooms_dicts = [room.to_dict() for room in rooms]
     return json.dumps({'rooms' : rooms_dicts})
-
  
 @app.route('/static/<folder>/<path:filename>')
 def base_static(folder, filename):
