@@ -102,7 +102,7 @@ View.prototype.draw = function() {
 View.prototype.drawRoom = function(context, room) {
 	this.definePath(context, room);
 	context.lineWidth = 2;
-	context.fillStyle = room.isSelected ? '#CCCCCC' : '#8ED6FF';
+	context.fillStyle = room.isOccupied ? '#CCCCCC' : '#8ED6FF';
 	context.fill();
 	context.strokeStyle = '#2A9BDB';
 	context.stroke();
@@ -157,6 +157,12 @@ View.prototype.setFloorPlan = function(floorPlan) {
 	this.draw();
 }
 
+View.prototype.setOccupied = function(occupiedSet) {
+	for (var i = 0; i < this.rooms.length; ++i)
+		this.rooms[i].isOccupied = this.rooms[i].id in occupiedSet;
+	this.draw();
+}
+
 // Class View.RoomView
 View.RoomView = function(room) {
 	this.id = room.id;
@@ -164,12 +170,13 @@ View.RoomView = function(room) {
 	this.coordinates = room.coordinates;
 	this.center = room.center;
 	this.isSelected = false;
+	this.isOccupied = false;
 }
 
 // Global
 function initialize() {
 	window.view = new View(document.getElementById('floor-plan'), document.getElementById('floor-plan-wrapper'));
-	$.getJSON('static/json/floor_10.json', parseFloorPlan).fail(function() {
+	$.getJSON('static/json/floor_9.json', parseFloorPlan).fail(function() {
 		console.log('error');
 	});
 }
@@ -177,6 +184,18 @@ function initialize() {
 function parseFloorPlan(json) {
 	floorPlan = new FloorPlan(json);
 	window.view.setFloorPlan(floorPlan);
+	setViewOccupiedRooms();
+}
+
+function setViewOccupiedRooms() {
+	parseOccupiedRooms(function(occupiedSet) {
+		window.view.setOccupied(occupiedSet);
+		repeatedParseOccupiedRooms();
+	});
+}
+
+function repeatedParseOccupiedRooms() {
+	setTimeout(setViewOccupiedRooms, 10000);
 }
 
 $(document).ready(initialize);
