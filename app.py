@@ -44,14 +44,14 @@ class Room(Base):
   time_reserved = Column(Integer)	
 
   def __init__(self, name, occupied, floor, aux_id, bookable):
-      self.name = name
+    self.name = name
       self.occupied = occupied
       self.floor = floor
       self.aux_id = aux_id
       self.bookable = bookable
 
   def to_dict(self):
-		return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id, 'aux_id': self.aux_id, 'bookable': self.bookable}
+    return {'name' : self.name, 'occupied' : self.occupied, 'floor': self.floor, 'id': self.id, 'aux_id': self.aux_id, 'bookable': self.bookable}
 
 def rowtodict(row):
   d = {}
@@ -71,34 +71,34 @@ def with_session(func):
   return with_session_func  
 
 def list_of_rooms_to_dicts(rows):
-	list_of_dicts = []
-	for row in rows:
-		list_of_dicts.append(row.to_dict())
-	return list_of_dicts
+  list_of_dicts = []
+  for row in rows:
+    list_of_dicts.append(row.to_dict())
+  return list_of_dicts
 
 @app.errorhandler(404)
 def page_not_found(e):
-	return json.dumps({"status":404}), 404
+  return json.dumps({"status":404}), 404
 
 @app.route('/rooms/free')
 @with_session
 def get_free_floors(session):
-	rooms = session.query(Room).filter(Room.occupied==False).all()
-	rooms_dict = list_of_rooms_to_dicts(rooms)
-	return json.dumps({'rooms' : rooms_dict}), 200
+  rooms = session.query(Room).filter(Room.occupied==False).all()
+  rooms_dict = list_of_rooms_to_dicts(rooms)
+  return json.dumps({'rooms' : rooms_dict}), 200
 
 @with_session
 def load_data(session):
-	for file_name in list_of_floors:
-		json_string = open('./templates/static/json/' + file_name).read()
-		plans = json.loads(json_string)
-		rooms = plans.get('rooms')
-		for room_json in rooms:
-			try:
-				room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None), room_json.get('bookable', None))
-				session.add(room)
-			except IntegrityError as error:
-				pass
+  for file_name in list_of_floors:
+    json_string = open('./templates/static/json/' + file_name).read()
+    plans = json.loads(json_string)
+    rooms = plans.get('rooms')
+    for room_json in rooms:
+      try:
+        room = Room(room_json.get('name', None), False, room_json.get('floor', None), room_json.get('id', None), room_json.get('bookable', None))
+        session.add(room)
+      except IntegrityError as error:
+        pass
 
 @app.route('/floor/<int:floor_id>')
 @with_session
@@ -107,9 +107,9 @@ def show_floor(session, floor_id):
     rooms_on_floor = session.query(Room).filter(Room.floor==floor_id).all()
     room_dicts = []
     for room in rooms_on_floor:
-			room_dicts.append(room.to_dict())
+      room_dicts.append(room.to_dict())
   except NoResultFound as error:
-		abort(404)
+    abort(404)
 
   return json.dumps({'rooms' : room_dicts}), 200 
 
@@ -119,7 +119,7 @@ def show_room(session, room_id):
   try:
     room = session.query(Room).filter(Room.aux_id==room_id).one().to_dict()
   except NoResultFound as error:
-		abort(404)
+    abort(404)
 
   return json.dumps(room), 200 
 
@@ -129,13 +129,13 @@ def check_into_room(session, room_id):
   try:
     room = session.query(Room).filter(Room.aux_id==room_id).all()[0]
   except (NoResultFound, IndexError) as error:
-		abort(404)
+    abort(404)
   if room.bookable: 
-		if room.num_checkins == 0:
-			room.time_reserved = time.time()
-		room.occupied = True
-		room.num_checkins+=1
-		session.add(room)
+    if room.num_checkins == 0:
+      room.time_reserved = time.time()
+    room.occupied = True
+    room.num_checkins+=1
+    session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200
 
 @app.route('/room/checkout/<int:room_id>', methods=['POST',])
@@ -148,37 +148,37 @@ def check_out_of_room(session, room_id):
     abort(404)
 
   if room.bookable: 
-		room.occupied = False
-		room.num_checkins-=1
-		if room.num_checkins == 0:
-			room.time_reserved = None
-		session.add(room)
+    room.occupied = False
+    room.num_checkins-=1
+    if room.num_checkins == 0:
+      room.time_reserved = None
+    session.add(room)
   return json.dumps({'status' : 'Succeeded'}), 200  
 
 @with_session
 def clean_batch(session):
-	cutoff_time = time.time() - 45*60
-	rooms = session.query(Room).filter(Room.time_reserved < cutoff_time).all()
-	for room in rooms:
-		room.num_checkins = 0
-		room.occupied = False
-		room.time_reserved = None
-		session.add(room)
+  cutoff_time = time.time() - 45*60
+  rooms = session.query(Room).filter(Room.time_reserved < cutoff_time).all()
+  for room in rooms:
+    room.num_checkins = 0
+    room.occupied = False
+    room.time_reserved = None
+    session.add(room)
 
 @app.route('/rooms')
 @with_session
 def list_rooms(session):
-    rooms = session.query(Room).all() 
+  rooms = session.query(Room).all() 
     rooms_dicts = [room.to_dict() for room in rooms]
     return json.dumps({'rooms' : rooms_dicts})
- 
+
 @app.route('/static/<folder>/<path:filename>')
 def base_static(folder, filename):
-	return send_from_directory(app.root_path + '/templates/static/' + folder + '/', filename)
+  return send_from_directory(app.root_path + '/templates/static/' + folder + '/', filename)
 
 @app.route('/')
 def homepage():
-	return render_template('index.html')
+  return render_template('index.html')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0')
